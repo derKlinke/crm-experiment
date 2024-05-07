@@ -11,7 +11,7 @@ export default function Admin() {
 
   useEffect(() => {
     // Initialize WebSocket connection
-    const ws = new WebSocket("ws://localhost:3001");
+    const ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_BASE_URL}:3001`);
     setWs(ws);
 
     ws.onmessage = (event) => {

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    volumes:
+      - db-data:/app/store/
+
+  websocket:
+    build: ./websocket
+    ports:
+      - "3001:3001"
+
+  nextjs-server:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-localhost}
+    ports:
+      - "80:3000"
+
+volumes:
+  db-data:

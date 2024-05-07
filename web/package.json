@@ -7,9 +7,13 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.13",
+    "chart.js": "^4.4.2",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "next": "latest",
     "react": "18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "18.2.0",
+    "sharp": "^0.33.3",
     "sqlite3": "^5.1.7",
     "ws": "^8.17.0"
   },

@@ -1,0 +1,6 @@
+flask
+flask-cors
+matplotlib
+pandas
+numpy
+waitress

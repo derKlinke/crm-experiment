@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const port = 3001; // Use a different port than your Next.js app
+const port = 3001;
 
 const wss = new WebSocket.Server({ port });
 

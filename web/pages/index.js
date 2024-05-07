@@ -16,8 +16,10 @@ export default function Home() {
     setIsRecordingState(value);
   };
 
+  console.log("Base URL:", process.env.NEXT_PUBLIC_BASE_URL);
+
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3001");
+    const ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_BASE_URL}:3001`);
     setWs(ws);
 
     ws.onopen = () => {
@@ -35,13 +37,16 @@ export default function Home() {
         setIsRecording(false);
 
         // store the points in the database
-        fetch("/api/saveSession", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(points.current),
-        })
+        fetch(
+          `http://${process.env.NEXT_PUBLIC_BASE_URL}:5000/api/saveSession`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(points.current),
+          }
+        )
           .then((response) => response.json())
           .then((data) => console.log(data))
           .catch((error) => console.error("Error:", error));
