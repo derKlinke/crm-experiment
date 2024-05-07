@@ -8,8 +8,10 @@ const Layout = ({ children, title }) => {
       <Head>
         <title>{title}</title>
       </Head>
-      <Header />
-      {children}
+      <div className="min-h-screen">
+        <Header />
+        <main>{children}</main>
+      </div>
       <Footer />
     </>
   );
