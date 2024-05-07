@@ -33,6 +33,18 @@ export default function Home() {
 
       if (evt.data === "stopRecording") {
         setIsRecording(false);
+
+        // store the points in the database
+        fetch("/api/saveSession", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(points.current),
+        })
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((error) => console.error("Error:", error));
       }
     };
 
@@ -54,12 +66,15 @@ export default function Home() {
     const addPoint = (x, y) => {
       // get timestamp
       const timestamp = Date.now();
-      points.current.push({ x, y, alpha: 1.0, time: timestamp });
+      points.current.push({ x, y, time: timestamp });
     };
 
     const draw = () => {
       context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
       context.beginPath();
+      context.lineWidth = 4;
+      context.lineCap = "round";
+      context.strokeStyle = "blue";
 
       for (let i = points.current.length - 1; i >= 0; i--) {
         const point = points.current[i];
@@ -72,6 +87,18 @@ export default function Home() {
       }
 
       context.stroke();
+
+      const axes = canvas.getContext("2d");
+      // draw axes for reference
+      axes.beginPath();
+      axes.strokeStyle = "gray";
+      axes.lineWidth = 1;
+      axes.moveTo(0, canvas.height / 2);
+      axes.lineTo(canvas.width, canvas.height / 2);
+      axes.moveTo(canvas.width / 2, 0);
+      axes.lineTo(canvas.width / 2, canvas.height);
+      axes.stroke();
+
       requestAnimationFrame(draw); // Request to draw the next frame
     };
 
@@ -108,7 +135,7 @@ export default function Home() {
           CRM Listening Experiment
         </h1>
 
-        <div className="flex justify-center items-center w-1/2 m-auto">
+        <div className="flex justify-center items-center m-auto md:w-1/2">
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}
@@ -116,7 +143,7 @@ export default function Home() {
           ></canvas>
         </div>
 
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-center items-center text-sm">
           <span>
             Connection Status: {isConnected ? "Connected" : "Disconnected"}
           </span>
