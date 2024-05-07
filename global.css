@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap");
+@import url("https://use.typekit.net/jcd1wtq.css");
+
+@tailwind base;
+@layer base {
+  :root {
+    --ground: #ffffff;
+    --accent: #ebecea;
+    --secondary: #b3b2a9;
+    --text: #201f20;
+    --primary: #131516;
+    --highlight: #b8c7b2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #201f20;
+      --accent: #131516;
+      --secondary: #b3b2a9;
+      --text: #ebecea;
+      --primary: #ffffff;
+    }
+  }
+
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    @apply text-text;
+    @apply font-medium;
+    @apply font-mono;
+  }
+
+  h1 {
+    @apply font-black;
+    @apply text-primary;
+    @apply font-sans;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+    @apply text-primary;
+  }
+
+  h1 {
+    @apply text-8xl lg:text-9xl;
+    @apply mt-10 mb-4;
+  }
+
+  p {
+    @apply mt-4 mb-4;
+  }
+
+  a {
+    @apply underline text-primary;
+    @apply hover:font-bold hover:underline hover:text-primary;
+  }
+
+  figcaption {
+    @apply text-secondary text-xs text-center mt-0;
+  }
+
+  strong {
+    @apply font-bold text-primary;
+  }
+}
+
+@tailwind components;
+
+@tailwind utilities;
+@layer utilities {
+  .pill {
+    @apply bg-accent p-1 px-4 rounded-full;
+  }
+
+  .drop-down-shadow {
+    box-shadow: 0 10px 10px rgba(32, 31, 32, 0.1);
+  }
+
+  .font-thin {
+    font-variation-settings: "wght" 100;
+  }
+  .font-extralight {
+    font-variation-settings: "wght" 200;
+  }
+  .font-light {
+    font-variation-settings: "wght" 300;
+  }
+  .font-normal {
+    font-variation-settings: "wght" 300;
+  }
+  .font-medium {
+    font-variation-settings: "wght" 300;
+  }
+  .font-semibold {
+    font-variation-settings: "wght" 400;
+  }
+  .font-bold {
+    font-variation-settings: "wght" 600;
+  }
+  .font-extrabold {
+    font-variation-settings: "wght" 700;
+  }
+  .font-black {
+    font-variation-settings: "wght" 800;
+  }
+}
