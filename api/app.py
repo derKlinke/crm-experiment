@@ -9,8 +9,10 @@ matplotlib.use("Agg")
 
 import pandas as pd
 
+base_url = os.getenv('NEXT_PUBLIC_BASE_URL')
+
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[base_url])
 
 num_sessions = 0
 
