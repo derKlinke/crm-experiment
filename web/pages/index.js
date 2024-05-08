@@ -1,9 +1,7 @@
 import Layout from "../components/Layout";
-import {useContext, useEffect, useState, createContext, useRef} from "react";
+import {useEffect, useState, useRef} from "react";
 
 export default function Home() {
-    const [ws, setWs] = useState(null);
-
     const [isConnected, setIsConnected] = useState(false);
     const [isRecordingState, setIsRecordingState] = useState(false);
 
@@ -21,7 +19,6 @@ export default function Home() {
 
     useEffect(() => {
         const ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_BASE_URL}:3001`);
-        setWs(ws);
 
         ws.onopen = () => {
             console.log("Connected to the server");
