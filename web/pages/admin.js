@@ -61,9 +61,18 @@ export default function Admin() {
     });
   };
 
+  const deleteSessions = () => {
+    fetch(`http://${process.env.NEXT_PUBLIC_BASE_URL}:5000/api/deleteAllSessions`, {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error("Error:", error));
+  }
+
   return (
     <Layout title={"admin"}>
-      <div className="flex flex-col justify-center items-center min-h-[80vh]">
+      <div className="flex flex-col justify-center items-center min-h-[80vh] space-y-2">
         <Image
           src="/song1.png"
           width={200}
@@ -76,6 +85,12 @@ export default function Admin() {
           className="bg-highlight font-bold p-2 rounded-lg"
         >
           Start Recording
+        </button>
+        <button
+          onClick={deleteSessions}
+          className="bg-secondary font-bold p-2 rounded-lg"
+        >
+            Delete Sessions
         </button>
       </div>
       <div className="flex flex-col justify-center items-center">

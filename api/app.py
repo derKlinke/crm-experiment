@@ -10,10 +10,8 @@ matplotlib.use("Agg")
 
 import pandas as pd
 
-base_url = os.getenv('NEXT_PUBLIC_BASE_URL')
-
 app = Flask(__name__)
-CORS(app, origins=[base_url])
+CORS(app, origins="*")
 
 num_sessions = 0
 
@@ -30,6 +28,22 @@ def create_table():
     db.commit()
     db.close()
 
+
+@app.route("/api/deleteAllSessions", methods=["POST"])
+def delete_all_sessions():
+    try:
+        db = sqlite3.connect(db_path)
+        cursor = db.cursor()
+
+        cursor.execute("DELETE FROM sessions")
+        db.commit()
+        return jsonify({"message": "All sessions deleted successfully"}), 200
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return jsonify({"error": "Failed to delete data"}), 500
+    finally:
+        if db:
+            db.close()
 
 @app.route("/api/getSessions", methods=["GET"])
 def get_sessions():
@@ -67,6 +81,10 @@ def get_sessions_plot():
     columns = [column[0] for column in cursor.description]
     data = [dict(zip(columns, row)) for row in data]
 
+    # when there are no sessions, return an empty plot
+    if not data:
+        return jsonify({"error": "Failed to fetch data"}), 500
+
     # Check if the number of sessions has changed, if not return the same plot
     if num_sessions == len(data):
         return send_file("plot.png", mimetype="image/png")
@@ -87,14 +105,24 @@ def get_sessions_plot():
     grouped_data = df.groupby("time").agg({"x": "mean", "y": "mean"}).reset_index()
 
     # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(grouped_data["time"], grouped_data["x"], label="Average X")
-    plt.plot(grouped_data["time"], grouped_data["y"], label="Average Y")
-    plt.xlabel("Time")
-    plt.ylabel("Average Value")
-    plt.title("Average X and Y Values Over Time")
-    plt.legend()
-    plt.grid(True)
+    fig, axs = plt.subplots(2, sharex=True, figsize=(10, 6))  # Create two subplots sharing x axis
+
+    # Plot 'x' values on the first subplot
+    axs[0].plot(grouped_data["time"], grouped_data["x"], label="Average X")
+    axs[0].set_ylabel("Average X")
+    axs[0].set_ylim(-1, 1)
+    axs[0].legend()
+    axs[0].grid(True)
+
+    # Plot 'y' values on the second subplot
+    axs[1].plot(grouped_data["time"], grouped_data["y"], label="Average Y", color='orange')
+    axs[1].set_xlabel("Time")
+    axs[1].set_ylabel("Average Y")
+    axs[1].set_ylim(-1, 1)
+    axs[1].legend()
+    axs[1].grid(True)
+
+    plt.suptitle("Average X and Y Values Over Time")  # Set a title for the entire figure
 
     plt.savefig("plot.png")
     plt.close()
@@ -107,12 +135,22 @@ def save_session():
     try:
         db = sqlite3.connect(db_path)
         cursor = db.cursor()
-
-        # Extract JSON data from the request
         points = request.json  # Directly use the parsed JSON from the request body
-        points_json = json.dumps(points)  # Convert Python dict/list to a JSON string
 
-        # Prepare SQL query to insert data
+        df = pd.DataFrame(points)
+        df['time'] = pd.to_datetime(df['time'], unit='ms')
+
+        # Convert x and y values from [0, 1] to [-1, 1] and invert x values
+        df['x'] = (df['x'] - 0.5) * 2
+        df['y'] = (1 - df['y'] - 0.5) * 2
+
+        # Resample the DataFrame to 1-second intervals and calculate the mean of 'x' and 'y' values in each interval
+        resampled_df = df.resample('100L', on='time').mean().reset_index()
+        resampled_df = resampled_df.fillna(method='ffill')
+
+        # Convert the resampled DataFrame back to a JSON string
+        points_json = resampled_df.to_json(orient='records')
+
         query = "INSERT INTO sessions (points) VALUES (?)"
         cursor.execute(query, (points_json,))
         db.commit()
