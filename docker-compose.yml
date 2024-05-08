@@ -3,7 +3,7 @@ version: '3.8'
 services:
   flask-api:
     build: ./api
-    image: ${ECR_REPOSITORY}/flask-api:latest
+    image: ${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}/flask-api:latest
     ports:
       - "5000:5000"
     volumes:
@@ -11,7 +11,7 @@ services:
 
   websocket:
     build: ./websocket
-    image: ${ECR_REPOSITORY}/websocket:latest
+    image: ${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}/websocket:latest
     ports:
       - "3001:3001"
 
@@ -20,7 +20,7 @@ services:
       context: ./web
       args:
         NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-localhost}
-    image: ${ECR_REPOSITORY}/nextjs-server:latest
+    image: ${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}/nextjs-server:latest
     ports:
       - "80:3000"
 
