@@ -25,6 +25,8 @@ jobs:
 
       - name: Build and push Docker images
         run: |
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
           docker-compose build
           docker-compose push
 
