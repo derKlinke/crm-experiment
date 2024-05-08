@@ -23,17 +23,17 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set Environment Variables
+        run: |
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> $GITHUB_ENV
+
       - name: Build and push Docker images
         run: |
           export AWS_REGION=${{ secrets.AWS_REGION }}
           export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
           docker-compose build
           docker-compose push
-
-      - name: Set Environment Variables
-        run: |
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
-          echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> $GITHUB_ENV
 
       - name: Copy Docker Compose file to EC2
         uses: appleboy/scp-action@master
