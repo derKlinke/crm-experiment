@@ -4,6 +4,7 @@ import sqlite3
 from flask_cors import CORS
 import matplotlib.pyplot as plt
 import matplotlib
+import os
 
 matplotlib.use("Agg")
 
