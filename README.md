@@ -1,6 +1,4 @@
-<div style="display: flex; justify-content: center;">
-    <img src="thumbnail.png" alt="Thumbnail" style="width: 400px;">
-</div>
+![](thumbnail.png)
 
 # CRM Experiment
 
