@@ -1,3 +1,5 @@
+![](thumbnail.webp)
+
 # CRM Experiment
 
 This project implements a Continuous Self-Reporting Method (CRM) experiment to collect two-dimensional emotional data (
