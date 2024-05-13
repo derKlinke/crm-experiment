@@ -1,5 +1,5 @@
 <div style="display: flex; justify-content: center;">
-    <img src="thumbnail.webp" alt="Thumbnail" style="width: 400px;">
+    <img src="thumbnail.png" alt="Thumbnail" style="width: 400px;">
 </div>
 
 # CRM Experiment
