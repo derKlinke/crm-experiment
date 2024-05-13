@@ -162,6 +162,14 @@ export default function Home() {
                             ref={canvasRef}
                             className="absolute top-0 left-0 w-full h-full border-2 border-black"
                         ></canvas>
+                        <div
+                            className="absolute top-1/2 right-0 transform -translate-x-1/2 -translate-y-7 text-lg">
+                            Valence
+                        </div>
+                        <div
+                            className="absolute top-0 left-1/2 translate-y-10 -translate-x-6 transform text-lg rotate-90">
+                            Arousal
+                        </div>
                     </div>
                 </div>
 
@@ -170,5 +178,6 @@ export default function Home() {
                     <span>Recording Status: {isRecordingState ? "Recording" : "Not Recording"}</span>
                 </div>
             </div>
-        </Layout>);
+        </Layout>
+    );
 }
