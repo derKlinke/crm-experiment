@@ -1,8 +1,6 @@
 import Layout from "../components/Layout";
 import {useEffect, useRef, useState} from "react";
 
-// FIXME: allow for drawing on mobile and touch devices
-// es gibt sowas das heiß capturepointerevents oder so damit sollen man das scrollen vermeiden
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
@@ -154,7 +152,7 @@ export default function Home() {
     return (
         <Layout title={"experiment"}>
             <div>
-                <div className="flex flex-col" style={{height: 'calc(100svh - 45px)'}}>
+                <div className="flex flex-col" style={{height: 'calc(100dvh - 45px)'}}>
                     <h1 className="text-center text-3xl font-bold">
                         CRM Listening Experiment
                     </h1>
