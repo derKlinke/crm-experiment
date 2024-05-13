@@ -1,14 +1,15 @@
-from flask import Flask, jsonify, request, send_file
 import json
+import logging as log
 import sqlite3
-from flask_cors import CORS
-import matplotlib.pyplot as plt
+from logging.config import dictConfig
+
 import matplotlib
-import os
-
-matplotlib.use("Agg")
-
+import matplotlib.pyplot as plt
 import pandas as pd
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
+
+matplotlib.use("Agg")  # Set the backend to 'Agg' to avoid displaying the plot in a window
 
 app = Flask(__name__)
 CORS(app, origins="*")
@@ -17,16 +18,33 @@ num_sessions = 0
 
 db_path = "store/sessionData.sqlite3"
 
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['wsgi']
+    }
+})
+
 
 def create_table():
     db = sqlite3.connect(db_path)
     cursor = db.cursor()
 
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, points TEXT)"
+        "CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, points TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
     )
     db.commit()
     db.close()
+
+    log.info("Table created successfully")
 
 
 @app.route("/api/deleteAllSessions", methods=["POST"])
@@ -45,6 +63,7 @@ def delete_all_sessions():
         if db:
             db.close()
 
+
 @app.route("/api/getSessions", methods=["GET"])
 def get_sessions():
     try:
@@ -58,6 +77,8 @@ def get_sessions():
         # Convert query results to a list of dicts
         columns = [column[0] for column in cursor.description]
         result = [dict(zip(columns, row)) for row in rows]
+
+        log.debug(f"Retrieved {len(result)} sessions from the database")
 
         return jsonify(result), 200
     except sqlite3.Error as e:
@@ -81,12 +102,15 @@ def get_sessions_plot():
     columns = [column[0] for column in cursor.description]
     data = [dict(zip(columns, row)) for row in data]
 
+    log.debug(f"Retrieved {len(data)} sessions from the database")
+
     # when there are no sessions, return an empty plot
     if not data:
         return jsonify({"error": "Failed to fetch data"}), 500
 
     # Check if the number of sessions has changed, if not return the same plot
     if num_sessions == len(data):
+        log.info("Returning the same plot")
         return send_file("plot.png", mimetype="image/png")
 
     all_points = []
@@ -127,6 +151,8 @@ def get_sessions_plot():
     plt.savefig("plot.png")
     plt.close()
 
+    log.info("Plot generated successfully")
+
     return send_file("plot.png", mimetype="image/png")
 
 
@@ -136,6 +162,16 @@ def save_session():
         db = sqlite3.connect(db_path)
         cursor = db.cursor()
         points = request.json  # Directly use the parsed JSON from the request body
+
+        log.debug(f"Received {len(points)} points from the client")
+
+        if not points:
+            log.error("Invalid data, empty points")
+            return jsonify({"error": "Invalid data, empty points"}), 400
+
+        if 'time' not in points[0]:
+            log.error("Invalid data, 'time' key not found")
+            return jsonify({"error": "Invalid data, 'time' key not found"}), 400
 
         df = pd.DataFrame(points)
         df['time'] = pd.to_datetime(df['time'], unit='ms')
@@ -154,6 +190,8 @@ def save_session():
         query = "INSERT INTO sessions (points) VALUES (?)"
         cursor.execute(query, (points_json,))
         db.commit()
+
+        log.debug(f"Successfully saved {len(resampled_df)} points to the database")
 
         last_id = cursor.lastrowid
         return jsonify({"message": "Data saved successfully", "id": last_id}), 200
