@@ -1,5 +1,8 @@
 import Layout from "../components/Layout";
-import {useEffect, useState, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
+
+// FIXME: allow for drawing on mobile and touch devices
+// es gibt sowas das heiß capturepointerevents oder so damit sollen man das scrollen vermeiden
 
 export default function Home() {
     const [isConnected, setIsConnected] = useState(false);
@@ -36,16 +39,11 @@ export default function Home() {
                 setIsRecording(false);
 
                 // store the points in the database
-                fetch(
-                    `http://${process.env.NEXT_PUBLIC_BASE_URL}:5000/api/saveSession`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(points.current),
-                    }
-                )
+                fetch(`http://${process.env.NEXT_PUBLIC_BASE_URL}:5000/api/saveSession`, {
+                    method: "POST", headers: {
+                        "Content-Type": "application/json",
+                    }, body: JSON.stringify(points.current),
+                })
                     .then((response) => response.json())
                     .then((data) => console.log(data))
                     .catch((error) => console.error("Error:", error));
@@ -118,54 +116,62 @@ export default function Home() {
 
         draw();
 
-        canvas.addEventListener("mousemove", (event) => {
+        const handleMove = (event) => {
             if (!isRecording.current) {
                 return;
             }
 
-            // only add point if mouse is inside the canvas
-            if (
-                event.clientX >= rect.left &&
-                event.clientX <= rect.right &&
-                event.clientY >= rect.top &&
-                event.clientY <= rect.bottom
-            ) {
-                // translate the mouse coordinates to canvas coordinates
-                const x = (event.clientX - rect.left) * 2;
-                const y = (event.clientY - rect.top) * 2;
+            event.preventDefault();
+
+            let x, y;
+
+            if (event.touches) { // Check if this is a touch event
+                x = event.touches[0].clientX;
+                y = event.touches[0].clientY;
+            } else { // If not a touch event, it's a mouse event
+                x = event.clientX;
+                y = event.clientY;
+            }
+
+            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                x = x * scaleX;
+                y = y * scaleY;
                 addPoint(x, y);
             }
-        });
+        };
+
+        canvas.addEventListener("mousemove", handleMove);
+        canvas.addEventListener("touchmove", handleMove);
+
 
         return () => {
-            canvas.removeEventListener("mousemove", addPoint);
+            canvas.removeEventListener("mousemove", handleMove);
+            canvas.removeEventListener("touchmove", handleMove);
         };
     }, []);
 
     return (
         <Layout title={"experiment"}>
             <div>
-                <h1 className="text-center text-3xl font-bold">
-                    CRM Listening Experiment
-                </h1>
+                <div className="flex flex-col" style={{height: 'calc(100vh - 45px)'}}>
+                    <h1 className="text-center text-3xl font-bold">
+                        CRM Listening Experiment
+                    </h1>
 
-                <div className="flex justify-center items-center m-auto md:w-1/2">
-                    <canvas
-                        ref={canvasRef}
-                        style={{width: "100%", height: "100%"}}
-                        className="border-2 border-black"
-                    ></canvas>
+                    <div className="flex-grow relative h-0 md:w-1/2 mx-auto container">
+                        <canvas
+                            ref={canvasRef}
+                            className="absolute top-0 left-0 w-full h-full border-2 border-black"
+                        ></canvas>
+                    </div>
                 </div>
 
                 <div className="flex flex-col justify-center items-center text-sm">
-          <span>
-            Connection Status: {isConnected ? "Connected" : "Disconnected"}
-          </span>
-                    <span>
-            Recording Status: {isRecordingState ? "Recording" : "Not Recording"}
-          </span>
+                    <span>Connection Status: {isConnected ? "Connected" : "Disconnected"}</span>
+                    <span>Recording Status: {isRecordingState ? "Recording" : "Not Recording"}</span>
                 </div>
             </div>
-        </Layout>
-    );
+        </Layout>);
 }
