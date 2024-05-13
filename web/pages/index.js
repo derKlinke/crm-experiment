@@ -124,13 +124,12 @@ export default function Home() {
             event.preventDefault();
 
             let x, y;
-
             if (event.touches) { // Check if this is a touch event
-                x = event.touches[0].clientX;
-                y = event.touches[0].clientY;
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
             } else { // If not a touch event, it's a mouse event
-                x = event.clientX;
-                y = event.clientY;
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
             }
 
             if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
@@ -155,7 +154,7 @@ export default function Home() {
     return (
         <Layout title={"experiment"}>
             <div>
-                <div className="flex flex-col" style={{height: 'calc(100vh - 45px)'}}>
+                <div className="flex flex-col" style={{height: 'calc(100svh - 45px)'}}>
                     <h1 className="text-center text-3xl font-bold">
                         CRM Listening Experiment
                     </h1>
